@@ -117,8 +117,8 @@ class Fantasma(pygame.sprite.Sprite):
     def colision_laberinto(self, x, y):
         """Determinar si hay colisión con el laberinto."""
 
-        """ if self.es_teletransporte(x, y, self.vel_xy[0]):
-            return False """
+        if self.es_teletransporte(x, y, self.vel_xy[0]):
+            return False
         
         indice = self.game.obtener_indice(x + self.vel_xy[0], y + self.vel_xy[1])
         
@@ -127,7 +127,7 @@ class Fantasma(pygame.sprite.Sprite):
         
         return Pantallas.get_laberinto(self.game.nivel)[indice] == TileType.WALL.value
     
-    """ def es_teletransporte(self, x, y, vel_x):
+    def es_teletransporte(self, x, y, vel_x):
         if y == 11:  # Línea especial para teletransporte
             if x + vel_x > self.game.CO.COLUMNAS:
                 self.rect.x = -self.game.CO.TX
@@ -135,7 +135,7 @@ class Fantasma(pygame.sprite.Sprite):
             elif x + vel_x < -1:
                 self.rect.x = self.game.CO.COLUMNAS * self.game.CO.TX
                 return True
-        return False """
+        return False
     
     def perseguir_pacman(self):
         """Actualizar dirección para perseguir a PacMan."""

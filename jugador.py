@@ -166,8 +166,8 @@ class PacManDies(pygame.sprite.Sprite):
         if pygame.time.get_ticks() - self.ultimo_update_duracion > self.duracion:
             self.kill()
             self.game.listas_sprites["fantasmas"].empty()
-            """ self.game.listas_sprites["vidas"].empty()
-            self.game.vidas -= 1 """
+            self.game.listas_sprites["vidas"].empty()
+            self.game.vidas -= 1
             #self.game.reinstanciar_pacmanFantasmas = True
             self.game.instanciar_objetos()
 
