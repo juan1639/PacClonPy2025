@@ -61,13 +61,17 @@ class Fantasma(pygame.sprite.Sprite):
     def generar_direcciones(self):
         """Generar las direcciones y configuraciones."""
 
+        # Animacion-base (cuando estan azules/ojos hay menos graficos):
         anim_base = [0, 2, 4, 6] if self.azul or self.ojos else [0, 8, 16, 24]
+        
+        # Cuando estan azules/ojos hay menos graficos (no importa el color), entonces multiplicar=0
+        multiplicar = 0 if self.azul or self.ojos else 2
 
         return {
-            Direccion.RIGHT.value: [1, 0, anim_base[0] + self.id_fantasma * 2, "updole"],
-            Direccion.LEFT.value: [-1, 0, anim_base[1] + self.id_fantasma * 2, "updori"],
-            Direccion.UP.value: [0, -1, anim_base[2] + self.id_fantasma * 2, "riledo"],
-            Direccion.DOWN.value: [0, 1, anim_base[3] + self.id_fantasma * 2, "rileup"]
+            Direccion.RIGHT.value: [1, 0, anim_base[0] + self.id_fantasma * multiplicar, "updole"],
+            Direccion.LEFT.value: [-1, 0, anim_base[1] + self.id_fantasma * multiplicar, "updori"],
+            Direccion.UP.value: [0, -1, anim_base[2] + self.id_fantasma * multiplicar, "riledo"],
+            Direccion.DOWN.value: [0, 1, anim_base[3] + self.id_fantasma * multiplicar, "rileup"]
         }
 
     def procesar_puntos_clave(self, puntos_crudos):
@@ -78,9 +82,9 @@ class Fantasma(pygame.sprite.Sprite):
         """Cargar imágenes según el estado del fantasma."""
 
         if self.ojos:
-            return [self.game.obtenerGrafico(f"fantasma{i + 51}.png", 1)[0] for i in range(8)]
+            return [self.game.obtener_grafico(f"fantasma{i + 51}.png", 1)[0] for i in range(8)]
         elif self.azul:
-            return [self.game.obtenerGrafico(f"fantasmaAzul{i + 1}.png", 1)[0] for i in range(8)]
+            return [self.game.obtener_grafico(f"fantasmaAzul{i + 1}.png", 1)[0] for i in range(8)]
         else:
             return [
                 self.game.obtener_grafico(f"fantasma{i + 1}.png", 1)[0]
@@ -158,8 +162,8 @@ class Fantasma(pygame.sprite.Sprite):
             base = self.dic_direccion[self.direccion][2]
             self.image = self.lista_imagenes[base + self.indice_animacion]
 
-            if self.azul:
-                self.image.set_alpha(100 if self.game.obtenerDuracionAzules() > 0 else 255)
+            """ if self.azul:
+                self.image.set_alpha(100 if self.game.obtenerDuracionAzules() > 0 else 255) """
 
     def verificar_colision_pacman(self):
         """Verificar colisiones con PacMan."""
@@ -187,7 +191,7 @@ class Fantasma(pygame.sprite.Sprite):
         coor_y = self.rect.y // self.game.CO.TY
         self.game.sumaPtosComeFantasmas *= 2
         self.game.puntos += self.game.sumaPtosComeFantasmas
-        self.game.instanciaPtosComeFantasmas(self.game.sumaPtosComeFantasmas, coor_x, coor_y)
+        #self.game.instanciaPtosComeFantasmas(self.game.sumaPtosComeFantasmas, coor_x, coor_y)
         self.game.instanciar_fantasma(coor_x, coor_y, self.id_fantasma, self.direccion, False, True)
 
     def manejar_colision_atrapa_pacman(self, impacto):

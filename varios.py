@@ -79,15 +79,15 @@ class PuntosGordos(pygame.sprite.Sprite):
         # Colisión con PacMan
         if pygame.sprite.spritecollide(self, self.game.listas_sprites["pacman"], False) and not self.game.temporizadorAzules:
             self.kill()
-            #self.game.temporizadorAzules = True
-            #self.game.ultimoUpdate_azules = pygame.time.get_ticks()
-
-            """ for fantasma in self.game.lista_los4fantasmas:
-                x, y = int(fantasma.rect.x / self.game.TX), int(fantasma.rect.y / self.game.TY)
-                self.game.instanciar_fantasma(x, y, fantasma.idFantasma, fantasma.direccion, azul=True, ojos=False)
-                fantasma.kill() """
-
             self.game.sonidos.reproducir("eating_ghost")
+
+            self.game.temporizadorAzules = True
+            self.game.ultimo_update["azules"] = pygame.time.get_ticks()
+
+            for fantasma in self.game.listas_sprites["fantasmas"]:
+                fantasma.kill()
+                x, y = int(fantasma.rect.x / self.game.CO.TX), int(fantasma.rect.y / self.game.CO.TY)
+                self.game.instanciar_fantasma(x, y, fantasma.id_fantasma, fantasma.direccion, azul=True, ojos=False)
 
 class Textos(pygame.sprite.Sprite):
     def __init__(self, game, texto, size, x, y, color, fondo=None, negrita=False, centrado=True, tipo=None):
@@ -116,6 +116,8 @@ class Textos(pygame.sprite.Sprite):
             self.image = self.font.render(f'{self.game.puntos}', True, self.color, self.fondo)
         if self.tipo == "dinamico-nivel":
             self.image = self.font.render(f'{self.game.nivel}', True, self.color, self.fondo)
+        if self.tipo == "show-bonus-fruta":
+            self.rect.y -= 1
 
 class ItemFrutas(pygame.sprite.Sprite):
     X, Y = 9, 11
@@ -132,9 +134,13 @@ class ItemFrutas(pygame.sprite.Sprite):
     def update(self):
         if pygame.sprite.spritecollide(self, self.game.listas_sprites["pacman"], False):
             self.kill()
+            self.game.sonidos.reproducir("eating_cherry")
             puntos_fruta = (self.game.nivel * 10) ** 2
             self.game.puntos += puntos_fruta
             self.game.ultimo_update["item-fruta"] = pygame.time.get_ticks()
-            #self.game.instanciaPtosComeFantasmas(puntos_fruta, self.x, self.y)
-            self.game.sonidos.reproducir("eating_cherry")
+            
+            self.game.instanciar_texto(str(puntos_fruta), 48, self.rect.x, self.rect.y, self.game.COL.ROJO, centrado=False, 
+                negrita=True, tipo="show-bonus-fruta")
+            
+            self.game.ultimo_update["show-bonus-fruta"] = pygame.time.get_ticks()
 

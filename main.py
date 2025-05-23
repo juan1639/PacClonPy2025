@@ -32,7 +32,8 @@ class Game:
         self.ultimo_update = {
             "azules": pygame.time.get_ticks(),
             "preparado": pygame.time.get_ticks(),
-            "item-fruta": pygame.time.get_ticks()
+            "item-fruta": pygame.time.get_ticks(),
+            "show-bonus-fruta": pygame.time.get_ticks()
         }
 
         # True= Se ejecuta el bucle Principal | False= no se ejecuta
@@ -119,6 +120,10 @@ class Game:
         instanciar_showvidas(self)
         instanciar_fantasmas(self)
     
+    def instanciar_fantasma(self, coorX, coorY, i, direc, azul, ojos):
+        fantasma = Fantasma(self, coorX, coorY, i, direc, azul, ojos)
+        self.listas_sprites["fantasmas"].add(fantasma)
+    
     def instanciar_pacman_dies(self, x, y):
         pacman_dies = PacManDies(self, x, y)
         self.listas_sprites["all_sprites"].add(pacman_dies)
@@ -126,6 +131,7 @@ class Game:
     def instanciar_fruta_periodicamente(self):
         """Instanciar/re-instanciar Item-Fruta periodicamente..."""
         instanciar_fruta(self)
+        check_showbonus_kill(self)
     
     def instanciar_textos_iniciales(self):
         """Instanciar textos marcadores, Preparado..."""

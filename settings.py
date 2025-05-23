@@ -19,13 +19,15 @@ class Constantes:
     TX, TY = 50, 50 # Tamano de los Tiles
     FILAS, COLUMNAS = 15, 19 # Filas x Columnas
     PACMAN_INI_POS = (9, 4)
-    VIDAS_COOR_X = COLUMNAS + 1 # CoorX showvidas
+    VIDAS_COOR_X = COLUMNAS # CoorX showvidas
     VIDAS_COOR_Y = 7 # CoorY Inicial showvidas
     INVULNERABLE = False
     N_FANTASMAS = 4
-    DURACION_AZULES = 8000 # Duracion de los 'fantasmas-azules' en el nivel 1
+    # Duracion de los 'fantasmas-azules' en el nivel 1
+    DURACION_AZULES = [8000, 8000, 7000, 6000, 5500, 5000, 4700, 4500, 4250, 4000, 3750, 3500, 3000, 2750, 2500]
     DURACION_PREPARADO = 4200
     INTERVALO_FRUTA = 12000
+    DURACION_SHOW_BONUS_FRUTA = 2900
     TXT_TITULO = " Pac Clon "
     TXT_PREPARADO = " Preparado! "
     ZONA_SCORES = 200

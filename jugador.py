@@ -172,6 +172,8 @@ class PacManDies(pygame.sprite.Sprite):
             self.game.instanciar_objetos()
 
 class PacmanShowVidas(pygame.sprite.Sprite):
+    MARGEN = 12
+
     def __init__(self, game, x, y):
         super().__init__()
         self.game = game
@@ -179,8 +181,8 @@ class PacmanShowVidas(pygame.sprite.Sprite):
         self.image = self.game.obtener_grafico("pacman1.png", 1)[0]
         
         self.rect = self.image.get_rect()
-        self.rect.x = x * self.game.CO.TX
-        self.rect.y = y * self.game.CO.TY
+        self.rect.x = (x * self.game.CO.TX) + PacmanShowVidas.MARGEN
+        self.rect.y = (y * self.game.CO.TY) + PacmanShowVidas.MARGEN
     
     def update(self):
         pass

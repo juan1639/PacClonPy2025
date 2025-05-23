@@ -47,7 +47,6 @@ def instanciar_fantasmas(self):
 
 def instanciar_fantasma(self, coorX, coorY, i, direc, azul, ojos):
     fantasma = Fantasma(self, coorX, coorY, i, direc, azul, ojos)
-    #self.lista_sprites_adibujar.add(fantasma)
     self.listas_sprites["fantasmas"].add(fantasma)
 
 def instanciar_fruta(self):
@@ -62,11 +61,21 @@ def instanciar_fruta(self):
         self.listas_sprites["all_sprites"].add(newFruta)
         self.listas_sprites["items"].add(newFruta)
 
+def check_showbonus_kill(self):
+    if len(self.listas_sprites["items"]) != 0 or not self.estado_juego["en_juego"]:
+        return
+    
+    calculo = pygame.time.get_ticks()
+    if calculo - self.ultimo_update["show-bonus-fruta"] > self.CO.DURACION_SHOW_BONUS_FRUTA:
+        self.ultimo_update["show-bonus-fruta"] = calculo
+        #print("3sg")
+        eliminar_elemento_de_lista(self, "textos", "show-bonus-fruta")
+
 def instanciar_textos(self):
     MARGEN = 9
 
     self.instanciar_texto(self.CO.TXT_PREPARADO, 90, (self.CO.RESOLUCION[0] - self.CO.ZONA_SCORES) // 2,
-        300, self.COL.VERDE_FONDO, fondo=self.COL.BG_GRIS_OSCURO, negrita=True)
+        300, self.COL.VERDE_FONDO, fondo=self.COL.BG_GRIS_OSCURO, negrita=True, tipo="txt-preparado")
     
     self.instanciar_texto("Puntos", 48, self.CO.RESOLUCION[0] - self.CO.ZONA_SCORES + MARGEN,
         self.CO.TY, self.COL.AMARILLENTO, negrita=True, centrado=False)
@@ -79,8 +88,9 @@ def instanciar_textos(self):
 
 def updates_segun_estado(self):
     """Updates condicionales (presentacion/preparado/en_juego...)"""
-    #self.checkTemporizadorAzules()
-    #self.checkNivelSuperado()
+
+    check_temporizador_azules(self)
+    checkNivelSuperado(self)
     self.instanciar_fruta_periodicamente()
 
     if self.estado_juego["menu_presentacion"]:
@@ -93,10 +103,7 @@ def updates_segun_estado(self):
             self.resetear_estados_juego()
             self.estado_juego["preparado"] = False
             self.estado_juego["en_juego"] = True
-            for sprite in self.listas_sprites["textos"]:
-                if isinstance(sprite, Textos) and sprite.texto == self.CO.TXT_PREPARADO:
-                    self.listas_sprites["textos"].remove(sprite)
-                    break
+            eliminar_elemento_de_lista(self, "textos", "txt-preparado")
     
     else:
         self.listas_sprites["all_sprites"].update()
@@ -105,6 +112,22 @@ def updates_segun_estado(self):
         self.listas_sprites["textos"].update()
     
     #self.checkTransicion_gameOverRejugar()
+
+def check_temporizador_azules(self):
+    calculo = pygame.time.get_ticks()
+    if self.temporizadorAzules and calculo - self.ultimo_update["azules"] > self.CO.DURACION_AZULES[self.nivel]:
+        self.ultimo_update["azules"] = calculo
+        print("tiempo-azules-agotado")
+        self.temporizadorAzules = False
+
+        for fantasma in self.listas_sprites["fantasmas"]:
+            fantasma.kill()
+            x, y = int(fantasma.rect.x / self.CO.TX), int(fantasma.rect.y / self.CO.TY)
+            self.instanciar_fantasma(x, y, fantasma.id_fantasma, fantasma.direccion, azul=False, ojos=False)
+
+def checkNivelSuperado(self):
+    if len(self.listas_sprites["puntitos"]) <= 0:
+        print("nivel superado")
 
 def draw_listas_sprites(self):
     """Renderizar las listas-sprites"""
@@ -116,9 +139,6 @@ def draw_listas_sprites(self):
     pygame.draw.rect(self.pantalla, self.COL.GRIS_FONDO, 
         (self.CO.COLUMNAS * self.CO.TX, 11 * self.CO.TY, self.CO.TX, self.CO.TY))
     
-    #self.renderizar_vidasMarcador()
-    
-    #self.listas_sprites["bonus_come_fantasmas"].draw(self.pantalla)
     self.listas_sprites["textos"].draw(self.pantalla)
 
 def eventos_comenzar_quit_etc(self):
@@ -140,10 +160,16 @@ def eventos_comenzar_quit_etc(self):
                 self.estado_juego["en_juego"] = True
                 self.ultimo_update["preparado"] = pygame.time.get_ticks()
                 self.sonidos.reproducir("inicio_nivel")
-                # Comenzar partida (Pulsando ENTER) *********************************
+                # ************** Comenzar partida (Pulsando ENTER) ***********************
                 self.new_game()
             
             if event.key == pygame.K_TAB:
                 for clave in self.estado_juego:
                     print(clave, self.estado_juego[clave])
+
+def eliminar_elemento_de_lista(self, lista, elemento):
+    for sprite in self.listas_sprites[lista]:
+        if isinstance(sprite, Textos) and sprite.tipo == elemento:
+            self.listas_sprites["textos"].remove(sprite)
+            break
 
