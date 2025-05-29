@@ -12,7 +12,7 @@ class LaberintoTile(pygame.sprite.Sprite):
         self.TX = self.game.CO.TX
         self.TY = self.game.CO.TY
 
-        nivel = min(self.game.nivel, 3)  # Limitar nivel máximo a 3
+        nivel = min(self.game.nivel, 9)  # Limitar nivel máximo a 3
         self.image = self.game.obtener_grafico(f'bloquepac{nivel}.png', 1)[0]
         self.rect = self.game.obtener_grafico(f'bloquepac{nivel}.png', 1)[1]
         self.rect.x, self.rect.y = x * self.TX, y * self.TY
@@ -20,6 +20,39 @@ class LaberintoTile(pygame.sprite.Sprite):
 
     def update(self):
         pass  # El laberinto no necesita actualización dinámica
+
+class LaberintoOrigTile(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, valor_tile):
+        super().__init__()
+        self.game = game
+        self.TX = self.game.CO.TX
+        self.TY = self.game.CO.TY
+
+        if valor_tile == 8:
+            self.image = self.game.obtener_grafico('tile-pac-rect.png', 1)[0]
+            self.rect = self.game.obtener_grafico('tile-pac-rect.png', 1)[1]
+        
+        elif valor_tile == 7:
+            self.image = self.game.obtener_grafico('tile-pac-circle-down-fondo.png', 1)[0]
+            self.rect = self.game.obtener_grafico('tile-pac-circle-down-fondo.png', 1)[1]
+        
+        elif valor_tile == 6:
+            self.image = self.game.obtener_grafico('tile-pac-circle-up-fondo.png', 1)[0]
+            self.rect = self.game.obtener_grafico('tile-pac-circle-up-fondo.png', 1)[1]
+        
+        elif valor_tile == 4:
+            self.image = self.game.obtener_grafico('tile-pac-circle-right-fondo.png', 1)[0]
+            self.rect = self.game.obtener_grafico('tile-pac-circle-right-fondo.png', 1)[1]
+        
+        elif valor_tile == 3:
+            self.image = self.game.obtener_grafico('tile-pac-circle-left-fondo.png', 1)[0]
+            self.rect = self.game.obtener_grafico('tile-pac-circle-left-fondo.png', 1)[1]
+
+        self.rect.x, self.rect.y = x * self.TX, y * self.TY
+        self.valor = valor_tile
+
+    def update(self):
+        pass
 
 class Puntitos(pygame.sprite.Sprite):
     SUMA_PUNTOS = 10
@@ -80,6 +113,7 @@ class PuntosGordos(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, self.game.listas_sprites["pacman"], False) and not self.game.temporizadorAzules:
             self.kill()
             self.game.sonidos.reproducir("eating_ghost")
+            self.game.sonidos.reproducir("fantasmas_azules")
 
             self.game.temporizadorAzules = True
             self.game.ultimo_update["azules"] = pygame.time.get_ticks()
@@ -116,9 +150,11 @@ class Textos(pygame.sprite.Sprite):
             self.image = self.font.render(f'{self.game.puntos}', True, self.color, self.fondo)
         if self.tipo == "dinamico-nivel":
             self.image = self.font.render(f'{self.game.nivel}', True, self.color, self.fondo)
-        if self.tipo == "show-bonus-fruta":
-            self.rect.y -= 1
 
+        if self.tipo != None:
+            if self.tipo.startswith("show-bonus"):
+                self.rect.y -= 1
+              
 class ItemFrutas(pygame.sprite.Sprite):
     X, Y = 9, 11
 
@@ -139,8 +175,8 @@ class ItemFrutas(pygame.sprite.Sprite):
             self.game.puntos += puntos_fruta
             self.game.ultimo_update["item-fruta"] = pygame.time.get_ticks()
             
-            self.game.instanciar_texto(str(puntos_fruta), 48, self.rect.x, self.rect.y, self.game.COL.ROJO, centrado=False, 
-                negrita=True, tipo="show-bonus-fruta")
+            self.game.instanciar_texto(str(puntos_fruta), 48, self.rect.x, self.rect.y, self.game.COL.NARANJA_ROJIZO_2,
+                centrado=False, negrita=True, tipo="show-bonus-fruta")
             
             self.game.ultimo_update["show-bonus-fruta"] = pygame.time.get_ticks()
 

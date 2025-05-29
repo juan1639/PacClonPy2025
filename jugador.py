@@ -1,7 +1,7 @@
 import pygame
 from enum import Enum
 from laberintos import Pantallas
-from tiles import TileType
+from tiles import TileType, paredes
 
 # ====================================================================================
 #   jugador.py (modulo logica del Pacman)
@@ -106,8 +106,8 @@ class PacMan(pygame.sprite.Sprite):
         if (indice is None):
             return False
         
-        return Pantallas.get_laberinto(self.game.nivel)[indice] == TileType.WALL.value
-
+        return Pantallas.get_laberinto(self.game.nivel)[indice] in paredes
+    
     def es_teletransporte(self, x, y, vel_x):
         if y == 11:  # Línea especial para teletransporte
             if x + vel_x > self.game.CO.COLUMNAS:

@@ -33,7 +33,12 @@ class Game:
             "azules": pygame.time.get_ticks(),
             "preparado": pygame.time.get_ticks(),
             "item-fruta": pygame.time.get_ticks(),
-            "show-bonus-fruta": pygame.time.get_ticks()
+            "show-bonus-fruta": pygame.time.get_ticks(),
+            "show-bonus-fantasma0": pygame.time.get_ticks(),
+            "show-bonus-fantasma1": pygame.time.get_ticks(),
+            "show-bonus-fantasma2": pygame.time.get_ticks(),
+            "show-bonus-fantasma3": pygame.time.get_ticks(),
+            "nivel_superado_delay": pygame.time.get_ticks()
         }
 
         # True= Se ejecuta el bucle Principal | False= no se ejecuta
@@ -96,7 +101,7 @@ class Game:
         self.crear_pantalla_nivel()
         self.instanciar_objetos()
         self.instanciar_textos_iniciales()
-        #self.sonidos.reproducir("inicio_nivel")
+        self.sonidos.reproducir("inicio_nivel")
     
     def obtener_grafico(self, nombrePng, escala):
         """Devolver una imagen y un rectangulo."""
@@ -113,7 +118,7 @@ class Game:
         """Instanciar/re-instanciar Pacman, fantasmas, etc..."""
 
         if self.vidas < 0:
-            print('game over')
+            self.ir_gameover()
             return
         
         instanciar_pacman(self)
@@ -142,6 +147,21 @@ class Game:
         newTxt = Textos(self, txt, size, x, y, color, fondo, negrita, centrado, tipo)
         self.listas_sprites["textos"].add(newTxt)
     
+    def ir_gameover(self):
+        # Pantalla de Game Over
+        print('game over')
+
+        self.resetear_estados_juego()
+        self.estado_juego["game_over"] = True
+
+        self.instanciar_texto(' Game Over ', 120, (self.CO.RESOLUCION[0] - self.CO.ZONA_SCORES) // 2,
+            300, self.COL.NARANJA_ROJIZO_2, fondo=self.COL.BG_GRIS_OSCURO, negrita=True, tipo="gameover")
+
+        self.instanciar_texto("  ENTER - Volver a jugar      ESC - Salir  ", 32, (self.CO.RESOLUCION[0] - self.CO.ZONA_SCORES) // 2,
+            self.CO.RESOLUCION[1] // 1.5, self.COL.VERDE_FONDO, fondo=self.COL.BG_GRIS_OSCURO, negrita=True, centrado=True)
+
+        self.sonidos.reproducir("gameover_retro")
+
     def update(self):
         pygame.display.set_caption(str(int(self.reloj.get_fps())))
 

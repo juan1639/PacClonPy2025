@@ -19,10 +19,37 @@ def crear_escenario(self):
                 tile = LaberintoTile(self, ii, i, valor_tile)
                 self.listas_sprites["all_sprites"].add(tile)
                 self.listas_sprites["laberinto"].add(tile)
+
+            elif valor_tile == TileType.WALL_RECT.value:
+                tileOrig = LaberintoOrigTile(self, ii, i, valor_tile)
+                self.listas_sprites["all_sprites"].add(tileOrig)
+                self.listas_sprites["puntitos"].add(tileOrig)
+
+            elif valor_tile == TileType.WALL_DOWN.value:
+                tileOrig = LaberintoOrigTile(self, ii, i, valor_tile)
+                self.listas_sprites["all_sprites"].add(tileOrig)
+                self.listas_sprites["puntitos"].add(tileOrig)
+            
+            elif valor_tile == TileType.WALL_UP.value:
+                tileOrig = LaberintoOrigTile(self, ii, i, valor_tile)
+                self.listas_sprites["all_sprites"].add(tileOrig)
+                self.listas_sprites["puntitos"].add(tileOrig)
+            
+            elif valor_tile == TileType.WALL_RIGHT.value:
+                tileOrig = LaberintoOrigTile(self, ii, i, valor_tile)
+                self.listas_sprites["all_sprites"].add(tileOrig)
+                self.listas_sprites["puntitos"].add(tileOrig)
+            
+            elif valor_tile == TileType.WALL_LEFT.value:
+                tileOrig = LaberintoOrigTile(self, ii, i, valor_tile)
+                self.listas_sprites["all_sprites"].add(tileOrig)
+                self.listas_sprites["puntitos"].add(tileOrig)
+
             elif valor_tile == TileType.DOT.value:
                 dot = Puntitos(self, ii, i, valor_tile)
                 self.listas_sprites["all_sprites"].add(dot)
                 self.listas_sprites["puntitos"].add(dot)
+
             elif valor_tile == TileType.POWER_DOT.value:
                 power_dot = PuntosGordos(self, ii, i, valor_tile)
                 self.listas_sprites["all_sprites"].add(power_dot)
@@ -68,8 +95,17 @@ def check_showbonus_kill(self):
     calculo = pygame.time.get_ticks()
     if calculo - self.ultimo_update["show-bonus-fruta"] > self.CO.DURACION_SHOW_BONUS_FRUTA:
         self.ultimo_update["show-bonus-fruta"] = calculo
-        #print("3sg")
         eliminar_elemento_de_lista(self, "textos", "show-bonus-fruta")
+
+def check_showbonus_fant_kill(self):
+    if not self.estado_juego["en_juego"] or not self.temporizadorAzules:
+        return
+    
+    for i in range(self.CO.N_FANTASMAS):
+        calculo = pygame.time.get_ticks()
+        if calculo - self.ultimo_update[f"show-bonus-fantasma{i}"] > self.CO.DURACION_SHOW_BONUS_FRUTA:
+            self.ultimo_update[f"show-bonus-fantasma{i}"] = calculo
+            eliminar_elemento_de_lista(self, "textos", f"show-bonus-fantasma{i}")
 
 def instanciar_textos(self):
     MARGEN = 9
@@ -91,7 +127,9 @@ def updates_segun_estado(self):
 
     check_temporizador_azules(self)
     checkNivelSuperado(self)
+    checkDelayNextLevel(self)
     self.instanciar_fruta_periodicamente()
+    check_showbonus_fant_kill(self)
 
     if self.estado_juego["menu_presentacion"]:
         self.listas_sprites["textos"].update()
@@ -119,6 +157,8 @@ def check_temporizador_azules(self):
         self.ultimo_update["azules"] = calculo
         print("tiempo-azules-agotado")
         self.temporizadorAzules = False
+        self.sonidos.sonidos["fantasmas_azules"].stop()
+        self.sumaPtosComeFantasmas = 100
 
         for fantasma in self.listas_sprites["fantasmas"]:
             fantasma.kill()
@@ -126,8 +166,28 @@ def check_temporizador_azules(self):
             self.instanciar_fantasma(x, y, fantasma.id_fantasma, fantasma.direccion, azul=False, ojos=False)
 
 def checkNivelSuperado(self):
-    if len(self.listas_sprites["puntitos"]) <= 0:
-        print("nivel superado")
+    if self.estado_juego["nivel_superado"]:
+        return
+     
+    if len(self.listas_sprites["puntitos"]) <= 0 and self.estado_juego["en_juego"]:
+        self.sonidos.sonidos["fantasmas_azules"].stop()
+        self.estado_juego["en_juego"] = False
+        self.estado_juego["nivel_superado"] = True
+        self.ultimo_update["nivel_superado_delay"] = pygame.time.get_ticks()
+        self.sonidos.reproducir("intermision")
+        print("nivel superado!")
+
+def checkDelayNextLevel(self):
+    if not self.estado_juego["nivel_superado"]:
+        return
+    
+    calculo = pygame.time.get_ticks()
+    if calculo - self.ultimo_update["nivel_superado_delay"] > self.CO.DELAY_NEXT_LEVEL:
+        self.nivel += 1
+        self.resetear_estados_juego()
+        self.estado_juego["preparado"] = True
+        self.ultimo_update["preparado"] = pygame.time.get_ticks()
+        self.new_game()
 
 def draw_listas_sprites(self):
     """Renderizar las listas-sprites"""
@@ -153,16 +213,21 @@ def eventos_comenzar_quit_etc(self):
                 pygame.quit()
                 sys.exit()
             
-            if event.key == pygame.K_RETURN and self.estado_juego["menu_presentacion"]:
+            if (event.key == pygame.K_RETURN and self.estado_juego["menu_presentacion"]) or (event.key == pygame.K_RETURN and self.estado_juego["game_over"]):
                 pygame.mixer.music.stop()
                 self.resetear_estados_juego()
                 self.estado_juego["preparado"] = True
                 self.estado_juego["en_juego"] = True
                 self.ultimo_update["preparado"] = pygame.time.get_ticks()
-                self.sonidos.reproducir("inicio_nivel")
+
+                if self.vidas <= 0:
+                    self.vidas = 3
+                    self.puntos = 0
+                    self.nivel = 1
+                
                 # ************** Comenzar partida (Pulsando ENTER) ***********************
                 self.new_game()
-            
+
             if event.key == pygame.K_TAB:
                 for clave in self.estado_juego:
                     print(clave, self.estado_juego[clave])

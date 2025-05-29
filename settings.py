@@ -8,6 +8,8 @@ class Colores:
     AMARILLO = (220, 190, 0)
     AMARILLENTO = (250, 245, 130)
     NARANJA = (250, 142, 12)
+    NARANJA_ROJIZO = (255, 100, 12)
+    NARANJA_ROJIZO_2 = (255, 45, 12)
     BLANCO = (240, 240, 240)
     GRIS_FONDO = (59, 59, 59)
     BG_GRIS_OSCURO = (49, 49, 50)
@@ -27,7 +29,8 @@ class Constantes:
     DURACION_AZULES = [8000, 8000, 7000, 6000, 5500, 5000, 4700, 4500, 4250, 4000, 3750, 3500, 3000, 2750, 2500]
     DURACION_PREPARADO = 4200
     INTERVALO_FRUTA = 12000
-    DURACION_SHOW_BONUS_FRUTA = 2900
+    DURACION_SHOW_BONUS_FRUTA = 2400
+    DELAY_NEXT_LEVEL = 7200
     TXT_TITULO = " Pac Clon "
     TXT_PREPARADO = " Preparado! "
     ZONA_SCORES = 200
@@ -54,7 +57,8 @@ class Sonidos:
             "gameover_retro": self.cargar_sonido("sonido/gameoveretro.ogg"),
             "fantasmas_azules": self.cargar_sonido("sonido/pacmanazules.ogg"),
             "eating_ghost": self.cargar_sonido("sonido/pacmaneatinghost.ogg"),
-            "inicio_nivel": self.cargar_sonido("sonido/pacmaninicionivel.ogg")
+            "inicio_nivel": self.cargar_sonido("sonido/pacmaninicionivel.ogg"),
+            "intermision": self.cargar_sonido("sonido/pacmanintermision.ogg")
         }
 
     def cargar_sonido(self, ruta, volumen=1.0):
@@ -65,7 +69,10 @@ class Sonidos:
 
     def reproducir(self, nombre, duracion=None):
         """Reproduce un sonido si está en el diccionario."""
-        if nombre in self.sonidos:
+        if nombre in self.sonidos and nombre == "fantasmas_azules":
+            self.sonidos[nombre].play(loops=-1)
+        
+        elif nombre in self.sonidos:
             if duracion == None:
                 self.sonidos[nombre].play()
             else:

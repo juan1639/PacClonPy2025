@@ -2,7 +2,7 @@ import pygame
 import random
 from enum import Enum
 from laberintos import Pantallas
-from tiles import TileType
+from tiles import TileType, paredes
 
 # ====================================================================================
 #   fantasmas.py (modulo logica de los fantasmas/enemigos)
@@ -54,6 +54,9 @@ class Fantasma(pygame.sprite.Sprite):
         self.fotograma_vel = 100  # Velocidad de animación
     
     def update(self):
+        if not self.game.estado_juego["en_juego"]:
+            return
+        
         self.actualizar_animacion()
         self.manejar_colisiones()
         self.verificar_colision_pacman()
@@ -129,7 +132,7 @@ class Fantasma(pygame.sprite.Sprite):
         if indice is None:
             return False
         
-        return Pantallas.get_laberinto(self.game.nivel)[indice] == TileType.WALL.value
+        return Pantallas.get_laberinto(self.game.nivel)[indice] in paredes
     
     def es_teletransporte(self, x, y, vel_x):
         if y == 11:  # Línea especial para teletransporte
@@ -183,7 +186,6 @@ class Fantasma(pygame.sprite.Sprite):
 
     def manejar_colision_comido(self):
         """Manejar cuando PacMan come al fantasma azul."""
-
         self.game.sonidos.reproducir("eating_ghost")
         self.kill()
 
@@ -193,6 +195,11 @@ class Fantasma(pygame.sprite.Sprite):
         self.game.puntos += self.game.sumaPtosComeFantasmas
         #self.game.instanciaPtosComeFantasmas(self.game.sumaPtosComeFantasmas, coor_x, coor_y)
         self.game.instanciar_fantasma(coor_x, coor_y, self.id_fantasma, self.direccion, False, True)
+
+        self.game.instanciar_texto(str(self.game.sumaPtosComeFantasmas), 48, self.rect.x, self.rect.y, self.game.COL.NARANJA_ROJIZO,
+            centrado=False, negrita=True, tipo=f"show-bonus-fantasma{self.id_fantasma}")
+        
+        self.game.ultimo_update[f"show-bonus-fantasma{self.id_fantasma}"] = pygame.time.get_ticks()
 
     def manejar_colision_atrapa_pacman(self, impacto):
         """Manejar cuando el fantasma atrapa a PacMan."""
