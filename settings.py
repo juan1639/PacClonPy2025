@@ -1,9 +1,39 @@
 import pygame
+import configparser
+import os
+
 
 # ====================================================================================
 #	settings.py (modulo de configuraciones)
 # 
 # ------------------------------------------------------------------------------------
+class ConfigIni:
+    @staticmethod
+    def crear_configini_si_no_existe():
+        NOMBRE = 'config.ini'
+
+        CONTENIDO = """
+            [general]
+            titulo=PacClon
+            nivel_inicial=1
+            vidas_iniciales=3
+            pacman_ini_pos_x=9
+            pacman_ini_pos_y=4
+            invulnerable=false
+            [video]
+            size_tile_x=50
+            size_tile_y=50
+            zona_scores=200
+            fps=100
+            """
+        
+        if not os.path.exists(NOMBRE):
+            with open(NOMBRE, "w") as f:
+                f.write(CONTENIDO.strip())
+            print(f"Archivo {NOMBRE} creado.")
+        else:
+            print(f"Usando archivo {NOMBRE} existente.")
+
 class Colores:
     AMARILLO = (220, 190, 0)
     AMARILLENTO = (250, 245, 130)
@@ -18,12 +48,20 @@ class Colores:
     AZUL_C = (144, 205, 205)
 
 class Constantes:
-    TX, TY = 50, 50 # Tamano de los Tiles
+    ConfigIni.crear_configini_si_no_existe()
+
+    CONFIG = configparser.ConfigParser()
+    CONFIG.read('config.ini')
+
+    NIVEL_INICIAL = CONFIG.getint('general', 'nivel_inicial')
+    VIDAS_INICIALES = CONFIG.getint('general', 'vidas_iniciales')
+
+    TX, TY = CONFIG.getint('video', 'size_tile_x'), CONFIG.getint('video', 'size_tile_y') # Tamano de los Tiles
     FILAS, COLUMNAS = 15, 19 # Filas x Columnas
-    PACMAN_INI_POS = (9, 4)
+    PACMAN_INI_POS = (CONFIG.getint('general', 'pacman_ini_pos_x'), CONFIG.getint('general', 'pacman_ini_pos_y'))
     VIDAS_COOR_X = COLUMNAS # CoorX showvidas
     VIDAS_COOR_Y = 7 # CoorY Inicial showvidas
-    INVULNERABLE = False
+    INVULNERABLE = CONFIG.getboolean('general', 'invulnerable')
     N_FANTASMAS = 4
     # Duracion de los 'fantasmas-azules' en el nivel 1
     DURACION_AZULES = [8000, 8000, 7000, 6000, 5500, 5000, 4700, 4500, 4250, 4000, 3750, 3500, 3000, 2750, 2500]
@@ -33,9 +71,9 @@ class Constantes:
     DELAY_NEXT_LEVEL = 7200
     TXT_TITULO = " Pac Clon "
     TXT_PREPARADO = " Preparado! "
-    ZONA_SCORES = 200
+    ZONA_SCORES = CONFIG.getint('video', 'zona_scores')
     RESOLUCION = (TX * COLUMNAS + ZONA_SCORES, TY * FILAS)
-    FPS = 100
+    FPS = CONFIG.getint('video', 'fps')
 
     LISTA_ARGS_FANTASMAS = [
         (5, 8, 0, 'le'), (8, 8, 1, 'le'),

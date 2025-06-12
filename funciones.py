@@ -6,6 +6,12 @@ from varios import *
 from laberintos import Pantallas
 from tiles import TileType
 
+# ========================================================================
+#   Modulo de funciones (que no pertenecen a ninguna class)
+#   
+#   (La mayoria estaban ubicadas en el modulo main.py y han sido...
+#    ... trasladadas aqui para reducir código en main.py)
+# ------------------------------------------------------------------------
 def crear_escenario(self):
     """Crear el laberinto y los tiles correspondientes."""
     contador = -1

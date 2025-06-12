@@ -20,9 +20,9 @@ class Game:
         self.CO = Constantes()
 
         # Marcadores: ptos, nivel, vidas...
-        self.nivel = 1
+        self.nivel = self.CO.NIVEL_INICIAL
         self.puntos = 0
-        self.vidas = 3
+        self.vidas = self.CO.VIDAS_INICIALES
 
         # Relativos a fantasmas
         self.sumaPtosComeFantasmas = 100	# 200 -> 400 -> 800 -> 1600
